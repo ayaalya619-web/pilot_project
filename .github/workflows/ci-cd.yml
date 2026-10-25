@@ -22,17 +22,14 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
-
       - name: Generate Prisma Client 
+        env:
+          DATABASE_URL: "postgresql://mock_user:mock_password@localhost:5432/mock_db?schema=public" # <--- التعديل الأول هنا لتخطي فحص الـ CI
         run: npx prisma generate
 
       - name: Run Linting (Optional)
         run: npm run lint --if-present
 
-      # - name: Run Tests
-      #   run: npm test 
-
-  
   continuous-deployment:
     needs: continuous-integration 
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
@@ -55,6 +52,8 @@ jobs:
         with:
           context: .
           push: true
+          build-args: |
+            DATABASE_URL=postgresql://mock_user:mock_password@localhost:5432/mock_db?schema=public
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/express-app:latest
             ${{ secrets.DOCKERHUB_USERNAME }}/express-app:${{ github.sha }}
