@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  new-postgres-db:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: mydb
+    ports:
+      - "5435:5432"
+    volumes:
+      - new_postgres_data:/var/lib/postgresql/data
+
+  new-express-app:
+    build: .
+    ports:
+      - "3001:3000"
+      - "5555:5555"
+    environment:
+      - DATABASE_URL=postgresql://myuser:mypassword@new-postgres-db:5432/mydb?schema=public
+    volumes:
+      - .:/app
+      - /app/node_modules
+    depends_on:
+      - new-postgres-db
+    command: sh -c "npx prisma db push && npx prisma studio & npx nodemon -L src/app.js"
+
+volumes:
+  new_postgres_data:
