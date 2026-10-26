@@ -9,7 +9,7 @@ RUN npm ci
 
 COPY . .
 
-RUN npx prisma generate
+RUN DATABASE_URL="postgresql://mock:mock@localhost:5432/mock?schema=public" npx prisma generate
 
 FROM node:20-alpine AS runner
 
