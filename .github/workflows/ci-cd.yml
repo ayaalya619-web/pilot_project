@@ -56,7 +56,7 @@ jobs:
             DATABASE_URL=postgresql://mock_user:mock_password@localhost:5432/mock_db?schema=public
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/express-app:latest
-            ${{ secrets.DOCKER_TOKEN }}/express-app:${{ github.sha }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/express-app:${{ github.sha }}
 
       - name: Deploy to Server via SSH
         uses: appleboy/ssh-action@v1.0.3
