@@ -56,7 +56,7 @@ jobs:
             DATABASE_URL=postgresql://mock_user:mock_password@localhost:5432/mock_db?schema=public
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/express-app:latest
-            ${{ secrets.DOCKERHUB_USERNAME }}/express-app:${{ github.sha }}
+            ${{ secrets.DOCKER_TOKEN }}/express-app:${{ github.sha }}
 
       - name: Deploy to Server via SSH
         uses: appleboy/ssh-action@v1.0.3
@@ -65,6 +65,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
+            echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/express-app:latest
             docker stop express-container || true
             docker rm express-container || true
