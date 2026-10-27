@@ -1,3 +1,5 @@
+const PostDTO = require('./post.dto');
+
 class UserDTO {
     static validateCreateInput(data) {
         const { username, email, password } = data;
@@ -15,7 +17,8 @@ class UserDTO {
             id: user.id,
             username: user.username,
             email: user.email,
-            createdAt: user.createdAt
+            createdAt: user.createdAt,
+            posts: user.posts ? user.posts.map(post => PostDTO.transformPostResponse(post)) : []
         };
     }
 }

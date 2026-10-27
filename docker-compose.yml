@@ -1,5 +1,7 @@
 version: '3.8'
 
+name: pilot_express_project
+
 services:
   new-postgres-db:
     image: postgres:15-alpine
@@ -13,19 +15,32 @@ services:
     volumes:
       - new_postgres_data:/var/lib/postgresql/data
 
+  redis:
+    image: redis:alpine
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - new_redis_data:/data
+
   new-express-app:
     build: .
+    user: root
     ports:
-      - "3001:3000"
+      - "3002:3000"
       - "5555:5555"
     environment:
       - DATABASE_URL=postgresql://myuser:mypassword@new-postgres-db:5432/mydb?schema=public
+      - REDIS_HOST=redis
     volumes:
       - .:/app
       - /app/node_modules
     depends_on:
       - new-postgres-db
-    command: sh -c "npx prisma db push && npx prisma studio & npx nodemon -L src/app.js"
+      - redis
+    command: sh -c "chown -R node:node /app/node_modules && npx dotenv -e .env prisma migrate deploy && npx prisma generate && npx prisma studio & npx nodemon -L src/app.js"
+
 
 volumes:
   new_postgres_data:
+  new_redis_data:

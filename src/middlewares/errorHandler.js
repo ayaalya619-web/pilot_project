@@ -1,22 +1,30 @@
-const errorHandler = (err, req, res, next) => {
-    console.error("❌ [Error Captured]:", err.message);
+const logger = require('../config/logger');
 
-    let statusCode = 500;
+const errorHandler = (err, req, res, next) => {
+    let statusCode = err.statusCode || 500;
     let message = err.message || "Internal Server Error";
 
-    if (err.message.toLowerCase().includes("validation")) {
-        statusCode = 400;
+    if (typeof message === 'string' && (message.startsWith('[') || message.startsWith('{'))) {
+        try {
+            const parsed = JSON.parse(message);
+            if (Array.isArray(parsed) && parsed[0]?.message) {
+                message = parsed.map(e => e.message).join(', ');
+                statusCode = 400;
+            }
+        } catch (e) {}
     }
 
-    if (err.code && err.code.startsWith("P")) {
-        statusCode = 409;
-        message = "Database operation failed or constraint violation.";
+    if (statusCode === 500) {
+        logger.error(`${req.method} ${req.originalUrl} - ${message}`, err);
+    } else {
+        logger.warn(`${req.method} ${req.originalUrl} - Status: ${statusCode} - ${message}`);
     }
 
     res.status(statusCode).json({
         success: false,
         status: statusCode,
-        error: message
+        message: message,
+        ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
     });
 };
 
