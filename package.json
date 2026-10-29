@@ -1,13 +1,15 @@
 {
   "name": "pilot-project",
   "version": "1.0.0",
-  "main": "index.js",
+  "type": "module",
+  "main": "dist/app.js",
   "scripts_old_comment": {
     "test": "echo \"Success\""
   },
   "scripts": {
-    "dev": "nodemon src/app.js",
-    "start": "node src/app.js"
+    "dev": "nodemon --exec tsx src/app.ts",
+    "build": "tsc",
+    "start": "node dist/app.js"
   },
   "keywords": [],
   "author": "",
@@ -15,20 +17,34 @@
   "description": "",
   "dependencies": {
     "@prisma/client": "^6.19.3",
+    "@socket.io/redis-adapter": "^8.3.0",
+    "axios": "^1.21.0",
     "bcryptjs": "^3.0.3",
     "bullmq": "^6.5.0",
     "dotenv": "^18.0.9",
     "express": "^5.3.0",
+    "express-rate-limit": "^8.7.1",
     "ioredis": "^6.0.0",
     "jsonwebtoken": "^9.0.3",
     "morgan": "^1.12.1",
+    "rate-limit-redis": "^6.0.2",
+    "socket.io": "^4.8.4",
+    "telegraf": "^4.16.3",
     "winston": "^3.19.0",
     "zod": "^4.6.7"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/morgan": "^1.1.33",
+    "@types/multer": "^1.4.12",
+    "@types/node": "^22.0.0",
     "dotenv-cli": "^11.0.0",
     "multer": "^2.5.0",
     "nodemon": "^3.1.14",
-    "prisma": "^6.19.3"
+    "prisma": "^6.19.3",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
   }
 }

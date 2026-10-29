@@ -11,7 +11,7 @@ services:
       POSTGRES_PASSWORD: mypassword
       POSTGRES_DB: mydb
     ports:
-      - "5435:5432"
+      - "5436:5432"
     volumes:
       - new_postgres_data:/var/lib/postgresql/data
 
@@ -24,7 +24,9 @@ services:
       - new_redis_data:/data
 
   new-express-app:
-    build: .
+    build: 
+      context: .
+      target: builder
     user: root
     ports:
       - "3002:3000"
@@ -32,15 +34,35 @@ services:
     environment:
       - DATABASE_URL=postgresql://myuser:mypassword@new-postgres-db:5432/mydb?schema=public
       - REDIS_HOST=redis
+      - PRISMA_CLIENT_ENGINE_TYPE=library
+      - TELEGRAM_BOT_TOKEN=9177872661:AAFGLbt9H4GfYGPGTxxkOuEF3H11vXhz2Us
+      - JWT_ACCESS_SECRET=super_secret_access_key
+      - JWT_REFRESH_SECRET=super_secret_refresh_key
+      - N8N_URL=http://n8n:5678
     volumes:
       - .:/app
       - /app/node_modules
     depends_on:
       - new-postgres-db
       - redis
-    command: sh -c "chown -R node:node /app/node_modules && npx dotenv -e .env prisma migrate deploy && npx prisma generate && npx prisma studio & npx nodemon -L src/app.js"
+      - n8n 
+    command: sh -c "mkdir -p /app/node_modules && chown -R root:root /app/node_modules && npm install && npx prisma db push && (npx prisma generate --watch &) && (npx prisma studio --port 5555 --hostname 0.0.0.0 &) && npx nodemon -L --exec tsx src/app.ts"
 
+  n8n:
+    #image: docker.n8n.io/n8nio/n8n:latest
+    image: n8nio/n8n:latest
+    restart: always
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_HOST=localhost
+      - N8N_PORT=5678
+      - PROTOCOL=http
+      - WEBHOOK_URL=${N8N_WEBHOOK_BASE_URL:-http://localhost:5678/}
+    volumes:
+      - new_n8n_data:/home/node/.n8n
 
 volumes:
   new_postgres_data:
   new_redis_data:
+  new_n8n_data:

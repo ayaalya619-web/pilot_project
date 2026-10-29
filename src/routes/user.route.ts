@@ -1,0 +1,16 @@
+import { Router } from 'express';
+import userController from '../controllers/user.controller.js';
+import authController from '../controllers/auth.controller.js';
+import authGuard from '../middlewares/auth.guard.js';
+
+const router: Router = Router();
+
+router.post('/', userController.createUser);
+router.get('/', authGuard, userController.getAllUsers.bind(userController));
+
+router.post('/register', authController.register.bind(authController));
+router.post('/login', authController.login.bind(authController));
+router.post('/refresh', authController.refresh);
+router.post('/logout', authGuard, authController.logout);
+
+export default router;

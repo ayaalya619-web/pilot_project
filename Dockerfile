@@ -7,7 +7,7 @@ WORKDIR /app
 COPY package*.json ./
 COPY prisma ./prisma/
 
-RUN npm ci
+RUN npm install
 
 RUN DATABASE_URL="postgresql://mock:mock@localhost:5432/mock?schema=public" PRISMA_CLI_BINARY_TARGETS=linux-musl-openssl-3.0.x npx prisma generate
 
@@ -22,7 +22,7 @@ WORKDIR /app
 COPY package*.json ./
 COPY prisma ./prisma/
 
-RUN npm ci --only=production
+RUN npm install
 
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma/client ./node_modules/@prisma/client
@@ -34,4 +34,4 @@ USER node
 
 EXPOSE 3000
 
-CMD ["node", "src/app.js"]
+CMD ["npx", "tsx", "src/app.ts"]
